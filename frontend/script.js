@@ -153,6 +153,52 @@ document.addEventListener('DOMContentLoaded', () => {
             metricsBody.appendChild(tr);
         });
 
+        // Render State Timeline
+        const timelineHeader = document.getElementById('timeline-header');
+        const timelineBody = document.querySelector('#timeline-table tbody');
+
+        timelineHeader.innerHTML = '<th>PID</th>';
+        timelineBody.innerHTML = '';
+
+        if (data.process_states && Object.keys(data.process_states).length > 0) {
+            // Determine max time units
+            const firstPid = Object.keys(data.process_states)[0];
+            const maxTime = data.process_states[firstPid].length;
+
+            // Generate headers for time units
+            for (let t = 0; t < maxTime; t++) {
+                const th = document.createElement('th');
+                th.textContent = t;
+                timelineHeader.appendChild(th);
+            }
+
+            // Generate rows for each process
+            for (const item of data.process_metrics) {
+                // Ensure we print in order of original process list
+                const pid = item.pid;
+                const states = data.process_states[pid];
+
+                const tr = document.createElement('tr');
+                const tdPid = document.createElement('td');
+                tdPid.innerHTML = `<strong>${pid}</strong>`;
+                tr.appendChild(tdPid);
+
+                if (states) {
+                    for (let t = 0; t < maxTime; t++) {
+                        const state = states[t] || "UNKNOWN";
+                        const td = document.createElement('td');
+                        td.className = `state-${state}`;
+
+                        // Abbreviate state for better fit if needed, but let's try full word first
+                        td.textContent = state;
+                        tr.appendChild(td);
+                    }
+                }
+
+                timelineBody.appendChild(tr);
+            }
+        }
+
         document.getElementById('avg-wt-value').textContent = data.average_waiting_time;
     }
 });

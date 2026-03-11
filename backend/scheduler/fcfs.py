@@ -1,4 +1,5 @@
 from models import ProcessInput
+from scheduler.util.state_generator import generate_state_timeline
 
 def schedule_fcfs(processes: list[ProcessInput]):
     # FCFS uses a standard List/Queue.
@@ -37,9 +38,11 @@ def schedule_fcfs(processes: list[ProcessInput]):
         
     metrics_list = list(process_metrics.values())
     avg_wt = sum(m["waiting_time"] for m in metrics_list) / len(metrics_list) if metrics_list else 0
+    process_states = generate_state_timeline(processes, gantt_chart, metrics_list)
     
     return {
         "gantt_chart": gantt_chart,
         "process_metrics": metrics_list,
-        "average_waiting_time": round(avg_wt, 2)
+        "average_waiting_time": round(avg_wt, 2),
+        "process_states": process_states
     }

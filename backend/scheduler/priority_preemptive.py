@@ -1,5 +1,6 @@
 import heapq
 from models import ProcessInput
+from scheduler.util.state_generator import generate_state_timeline
 
 def schedule_priority_preemptive(processes: list[ProcessInput]):
     arrival_queue = sorted(processes, key=lambda x: x.arrival_time)
@@ -82,9 +83,11 @@ def schedule_priority_preemptive(processes: list[ProcessInput]):
             
     metrics_list = [process_metrics[p.pid] for p in processes]
     avg_wt = sum(m["waiting_time"] for m in metrics_list) / len(metrics_list) if metrics_list else 0
+    process_states = generate_state_timeline(processes, merged_gantt, metrics_list)
     
     return {
         "gantt_chart": merged_gantt,
         "process_metrics": metrics_list,
-        "average_waiting_time": round(avg_wt, 2)
+        "average_waiting_time": round(avg_wt, 2),
+        "process_states": process_states
     }

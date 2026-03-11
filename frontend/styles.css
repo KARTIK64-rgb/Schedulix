@@ -83,3 +83,19 @@ button {
     text-align: center;
     font-size: 18px;
 }
+
+.timeline-container {
+    overflow-x: auto;
+    margin-bottom: 20px;
+}
+#timeline-table th, #timeline-table td {
+    border: 1px solid #ccc;
+    padding: 6px;
+    text-align: center;
+    min-width: 40px;
+}
+.state-NEW { background-color: #f5f5f5; color: #888; }
+.state-READY { background-color: #fffac2; }
+.state-RUNNING { background-color: #c8e6c9; font-weight: bold; }
+.state-TERMINATED { background-color: #ffcdd2; color: #333; }
+.state-UNKNOWN { background-color: #e0e0e0; }
