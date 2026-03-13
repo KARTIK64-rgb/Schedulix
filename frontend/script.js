@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const runBtn = document.getElementById('run-btn');
     const algorithmSelect = document.getElementById('algorithm');
     const tqContainer = document.getElementById('tq-container');
+    const ageingContainer = document.getElementById('ageing-container');
 
     let processCount = 0;
 
@@ -45,8 +46,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (alg === 'priority_preemptive') {
             currentPriorityCols.forEach(col => col.style.display = 'table-cell');
+            ageingContainer.style.display = 'flex';
         } else {
             currentPriorityCols.forEach(col => col.style.display = 'none');
+            ageingContainer.style.display = 'none';
         }
     });
 
@@ -60,11 +63,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const processes = [];
         const algorithm = algorithmSelect.value;
         let time_quantum = null;
+        let ageing_rate = null;
 
         if (algorithm === 'round_robin') {
             time_quantum = parseInt(document.getElementById('time-quantum').value, 10);
             if (isNaN(time_quantum) || time_quantum <= 0) {
                 alert("Please enter a valid positive time quantum.");
+                return;
+            }
+        }
+
+        if (algorithm === 'priority_preemptive') {
+            ageing_rate = parseInt(document.getElementById('ageing-rate').value, 10);
+            if (isNaN(ageing_rate) || ageing_rate <= 0) {
+                alert("Please enter a valid positive ageing rate.");
                 return;
             }
         }
@@ -90,6 +102,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (time_quantum !== null) {
             payload.time_quantum = time_quantum;
+        }
+
+        if (ageing_rate !== null) {
+            payload.ageing_rate = ageing_rate;
         }
 
         try {

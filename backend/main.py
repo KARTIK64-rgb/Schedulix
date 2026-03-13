@@ -26,7 +26,7 @@ def schedule_processes(request: ScheduleRequest):
     elif request.algorithm == AlgorithmEnum.sjf_preemptive:
         return schedule_sjf_preemptive(request.processes)
     elif request.algorithm == AlgorithmEnum.priority_preemptive:
-        return schedule_priority_preemptive(request.processes)
+        return schedule_priority_preemptive(request.processes, request.ageing_rate)
     elif request.algorithm == AlgorithmEnum.round_robin:
         if request.time_quantum is None or request.time_quantum <= 0:
             raise HTTPException(status_code=400, detail="Time quantum must be a positive integer for Round Robin")

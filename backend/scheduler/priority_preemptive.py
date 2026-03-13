@@ -2,7 +2,7 @@ import heapq
 from models import ProcessInput
 from scheduler.util.state_generator import generate_state_timeline
 
-def schedule_priority_preemptive(processes: list[ProcessInput]):
+def schedule_priority_preemptive(processes: list[ProcessInput], ageing_rate: int = None):
     arrival_queue = sorted(processes, key=lambda x: x.arrival_time)
     
     n = len(processes)
@@ -16,6 +16,10 @@ def schedule_priority_preemptive(processes: list[ProcessInput]):
     remaining_times = {p.pid: p.burst_time for p in processes}
     arrival_times = {p.pid: p.arrival_time for p in processes}
     
+    # Tracking for Ageing
+    wait_ticks = {p.pid: 0 for p in processes}
+    current_priorities = {p.pid: (p.priority if p.priority is not None else 0) for p in processes}
+    
     gantt_chart = []
     process_metrics = {}
     
@@ -27,8 +31,7 @@ def schedule_priority_preemptive(processes: list[ProcessInput]):
     while completed != n:
         while idx < n and arrival_queue[idx].arrival_time <= current_time:
             push_process = arrival_queue[idx]
-            # Default priority to 0 if not provided
-            pri = push_process.priority if push_process.priority is not None else 0
+            pri = current_priorities[push_process.pid]
             heapq.heappush(ready_queue, (pri, push_process.arrival_time, push_process.pid, push_process))
             idx += 1
             
@@ -69,7 +72,31 @@ def schedule_priority_preemptive(processes: list[ProcessInput]):
                 })
                 last_process_id = None
             else:
-                heapq.heappush(ready_queue, (pri, current_process.arrival_time, current_process.pid, current_process))
+                # Process not finished, push back with current specific priority
+                heapq.heappush(ready_queue, (current_priorities[current_process.pid], current_process.arrival_time, current_process.pid, current_process))
+                
+            # Apply Ageing to all processes CURRENTLY waiting in the ready queue
+            if ageing_rate is not None and ageing_rate > 0 and len(ready_queue) > 0:
+                aged_any = False
+                new_ready_queue = []
+                for p_pri, p_arr, p_pid, p_proc in ready_queue:
+                    # By ignoring the currently running process (it was popped above and potentially pushed back),
+                    # Wait, the currently running process WAS pushed back above if it didn't finish.
+                    # We should NOT age the process that just ran.
+                    if p_pid != current_process.pid:
+                        wait_ticks[p_pid] += 1
+                        if wait_ticks[p_pid] > 0 and wait_ticks[p_pid] % ageing_rate == 0:
+                            current_priorities[p_pid] -= 1
+                            aged_any = True
+                    
+                    # Store tuple with updated (or unchanged) priority
+                    new_ready_queue.append((current_priorities[p_pid], p_arr, p_pid, p_proc))
+                
+                if aged_any:
+                    ready_queue = new_ready_queue
+                    heapq.heapify(ready_queue)
+                else:
+                    ready_queue = new_ready_queue
         else:
             # CPU is idle
             current_time += 1

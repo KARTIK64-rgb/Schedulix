@@ -17,4 +17,5 @@ class ProcessInput(BaseModel):
 class ScheduleRequest(BaseModel):
     algorithm: AlgorithmEnum
     time_quantum: Optional[int] = None
+    ageing_rate: Optional[int] = None
     processes: List[ProcessInput]

@@ -18,3 +18,4 @@ A web-based CPU scheduling simulator that visualizes process execution and calcu
   - Average Waiting Time
 - **Clean Architecture:** Built cleanly with a FastAPI backend (handling algorithmic logic) and a Vanilla JavaScript/HTML/CSS frontend.
 - **Process State Timeline:** A tick-by-tick matrix displaying the exact state (NEW, READY, RUNNING, or TERMINATED) for every single process alongside the Gantt chart.
+- **Ageing (Starvation Prevention):** Dynamic ageing rate controls for Priority Preemptive scheduling, automatically upgrading waiting processes' priorities over time to prevent starvation.
