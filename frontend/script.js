@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const response = await fetch('http://127.0.0.1:8000/schedule', {
+            const response = await fetch('https://schedulix-kud5.onrender.com', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
