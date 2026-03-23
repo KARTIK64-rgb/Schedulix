@@ -4,97 +4,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CPU Scheduling Simulator</title>
+    <title>Schedulix — CPU Scheduling Simulator</title>
+    <meta name="description" content="Visualize and simulate CPU scheduling algorithms including FCFS, SJF, Round Robin and Priority Preemptive in real time.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
+    <div class="bg-grid"></div>
+    <div class="bg-glow glow-1"></div>
+    <div class="bg-glow glow-2"></div>
+
     <div class="container">
-        <h1>CPU Scheduling Simulator</h1>
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <span class="logo-icon">⬡</span>
+                <span class="logo-text">Schedulix</span>
+            </div>
+            <p class="tagline">CPU Scheduling Simulator</p>
+        </header>
 
-        <div class="controls">
-            <div class="control-group">
-                <label for="algorithm">Algorithm:</label>
-                <select id="algorithm">
-                    <option value="fcfs">FCFS</option>
-                    <option value="sjf_preemptive">SJF Preemptive</option>
-                    <option value="priority_preemptive">Priority Preemptive</option>
-                    <option value="round_robin">Round Robin</option>
-                </select>
+        <!-- Config Panel -->
+        <section class="card controls-card">
+            <h2 class="card-title">
+                <span class="title-icon">⚙</span>
+                Configuration
+            </h2>
+            <div class="controls">
+                <div class="control-group">
+                    <label for="algorithm">Algorithm</label>
+                    <div class="select-wrapper">
+                        <select id="algorithm">
+                            <option value="fcfs">FCFS — First Come First Serve</option>
+                            <option value="sjf_preemptive">SJF — Shortest Job First (Preemptive)</option>
+                            <option value="priority_preemptive">Priority (Preemptive)</option>
+                            <option value="round_robin">Round Robin</option>
+                        </select>
+                        <span class="select-arrow">▾</span>
+                    </div>
+                </div>
+
+                <div class="control-group" id="tq-container" style="display: none;">
+                    <label for="time-quantum">Time Quantum</label>
+                    <input type="number" id="time-quantum" min="1" value="2">
+                </div>
+
+                <div class="control-group" id="ageing-container" style="display: none;">
+                    <label for="ageing-rate">Ageing Rate</label>
+                    <input type="number" id="ageing-rate" min="1" value="2"
+                        title="Decrease priority number by 1 every N time units spent waiting">
+                </div>
+            </div>
+        </section>
+
+        <!-- Process Table -->
+        <section class="card">
+            <div class="card-header-row">
+                <h2 class="card-title">
+                    <span class="title-icon">⬡</span>
+                    Processes
+                </h2>
+                <button id="add-process-btn" class="btn btn-secondary">
+                    <span>＋</span> Add Process
+                </button>
             </div>
 
-            <div class="control-group" id="tq-container" style="display: none;">
-                <label for="time-quantum">Time Quantum:</label>
-                <input type="number" id="time-quantum" min="1" value="2">
-            </div>
-
-            <div class="control-group" id="ageing-container" style="display: none;">
-                <label for="ageing-rate">Ageing Rate:</label>
-                <input type="number" id="ageing-rate" min="1" value="2"
-                    title="Decrease priority number by 1 every N time units spent waiting">
-            </div>
-        </div>
-
-        <h2>Processes</h2>
-        <table id="process-table">
-            <thead>
-                <tr>
-                    <th>PID</th>
-                    <th>Arrival Time</th>
-                    <th>Burst Time</th>
-                    <th class="priority-col" style="display: none;">Priority</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Rows will be added dynamically -->
-            </tbody>
-        </table>
-
-        <div class="actions">
-            <button id="add-process-btn">Add Process</button>
-            <button id="run-btn">Run Scheduler</button>
-        </div>
-
-        <div id="results" style="display: none;">
-            <h2>Results</h2>
-
-            <h3>Gantt Chart</h3>
-            <div id="gantt-chart" class="gantt-container"></div>
-
-            <h3>Metrics</h3>
-            <table id="metrics-table">
-                <thead>
-                    <tr>
-                        <th>PID</th>
-                        <th>Completion Time</th>
-                        <th>Turnaround Time</th>
-                        <th>Waiting Time</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Results populated here -->
-                </tbody>
-            </table>
-
-            <p class="avg-wait">Average Waiting Time: <span id="avg-wt-value"></span></p>
-
-            <h3>Process State Timeline</h3>
-            <div class="timeline-container">
-                <table id="timeline-table">
+            <div class="table-wrapper">
+                <table id="process-table">
                     <thead>
-                        <tr id="timeline-header">
+                        <tr>
                             <th>PID</th>
-                            <!-- Time columns populated dynamically -->
+                            <th>Arrival Time</th>
+                            <th>Burst Time</th>
+                            <th class="priority-col" style="display: none;">Priority</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Timeline rows populated here -->
+                        <!-- Rows populated dynamically -->
                     </tbody>
                 </table>
             </div>
+
+            <div class="actions">
+                <button id="run-btn" class="btn btn-primary">
+                    <span class="btn-icon">▶</span>
+                    Run Scheduler
+                </button>
+            </div>
+        </section>
+
+        <!-- Results -->
+        <div id="results" style="display: none;">
+
+            <!-- Gantt Chart -->
+            <section class="card">
+                <h2 class="card-title">
+                    <span class="title-icon">▦</span>
+                    Gantt Chart
+                </h2>
+                <div id="gantt-chart" class="gantt-container"></div>
+            </section>
+
+            <!-- Metrics -->
+            <section class="card">
+                <div class="card-header-row">
+                    <h2 class="card-title">
+                        <span class="title-icon">◈</span>
+                        Process Metrics
+                    </h2>
+                    <div class="avg-badge">
+                        Avg Wait: <span id="avg-wt-value" class="avg-value">—</span>
+                    </div>
+                </div>
+
+                <div class="table-wrapper">
+                    <table id="metrics-table">
+                        <thead>
+                            <tr>
+                                <th>PID</th>
+                                <th>Completion Time</th>
+                                <th>Turnaround Time</th>
+                                <th>Waiting Time</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- State Timeline -->
+            <section class="card">
+                <h2 class="card-title">
+                    <span class="title-icon">⬤</span>
+                    Process State Timeline
+                </h2>
+                <div class="timeline-container">
+                    <table id="timeline-table">
+                        <thead>
+                            <tr id="timeline-header">
+                                <th>PID</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                <div class="timeline-legend">
+                    <span class="legend-item state-NEW">NEW</span>
+                    <span class="legend-item state-READY">READY</span>
+                    <span class="legend-item state-RUNNING">RUNNING</span>
+                    <span class="legend-item state-TERMINATED">TERMINATED</span>
+                </div>
+            </section>
         </div>
     </div>
+
     <script src="script.js"></script>
 </body>
 
